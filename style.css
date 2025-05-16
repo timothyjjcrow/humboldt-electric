@@ -39,7 +39,6 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
-  -webkit-text-size-adjust: 100%; /* Prevent auto text size adjustment */
 }
 
 body {
@@ -50,9 +49,6 @@ body {
   overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 16px; /* Explicitly set font size for body too */
 }
 
 h1,
@@ -331,12 +327,22 @@ section {
 
 /* Styles for the prominent hero logo */
 .hero-main-logo {
-  display: block;
-  margin: 0 auto 2rem auto;
-  max-width: 550px;
-  opacity: 1;
-  position: relative; /* To ensure it's part of the stacking context if needed */
-  z-index: 3; /* Above background, potentially above overlay if one was added */
+  max-width: 80%; /* Make it 80% of its container, up to a certain point */
+  width: 100%; /* Ensure it tries to fill available width */
+  display: block; /* Ensure proper block behavior for margins */
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2rem; /* Adjusted margin */
+  filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.2));
+  object-fit: contain; /* Ensures the image scales down without cropping if aspect ratio differs */
+}
+
+/* Add a media query for smaller screens to further cap the logo size if needed */
+@media (max-width: 576px) {
+  .hero-main-logo {
+    max-width: 280px; /* Cap it at 280px on very small screens */
+    margin-bottom: 1.5rem;
+  }
 }
 
 .hero-section h1 {
@@ -436,7 +442,6 @@ section {
   align-items: center;
   gap: 0.5rem;
   position: relative;
-  overflow: hidden;
 }
 
 .service-link i {
@@ -647,6 +652,29 @@ section {
 .modal-prev:hover,
 .modal-next:hover {
   background: var(--primary-color);
+}
+
+/* Gallery Modal Image Counter */
+.gallery-modal .modal-content {
+  position: relative; /* Ensure positioning context for the counter */
+}
+
+.image-counter {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  z-index: 10; /* Ensure it's above the image but below close/nav buttons if they overlap */
+}
+
+/* Ensure modal content has a higher z-index if needed, though likely fine */
+.gallery-modal .modal-content img {
+  /* Potentially add z-index: 1; if there are stacking issues with the counter */
+  /* But likely not needed as counter has z-index 10 */
 }
 
 /* PRODUCT SECTION */
@@ -911,13 +939,14 @@ section {
 .about-content {
   display: flex;
   flex-wrap: wrap;
-  gap: 4rem;
+  gap: 4rem; /* Base gap for larger screens */
   align-items: center;
 }
 
-.about-text {
+.about-text,
+.about-image {
   flex: 1;
-  min-width: 300px;
+  min-width: 300px; /* Causes wrapping on smaller screens */
 }
 
 .about-text p {
@@ -928,9 +957,9 @@ section {
 
 .about-stats {
   display: flex;
-  gap: 2rem;
+  gap: 2rem; /* Base gap for stats */
   margin-top: 2.5rem;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allow stats to wrap if needed */
 }
 
 .stat-item {
@@ -949,11 +978,6 @@ section {
   font-size: 1rem;
   color: var(--dark-gray);
   font-weight: 500;
-}
-
-.about-image {
-  flex: 1;
-  min-width: 300px;
 }
 
 .about-image img {
@@ -1081,13 +1105,13 @@ section {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 3rem;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr; /* First column wider for logo/info */
+  gap: 2.5rem;
   margin-bottom: 3rem;
 }
 
 .footer-info {
-  min-width: 300px;
+  /* min-width is removed to let grid handle width primarily */
 }
 
 .footer-logo {
@@ -1254,102 +1278,22 @@ section {
 }
 
 @media (max-width: 992px) {
+  /* Tablet */
   .video-container iframe {
     height: 400px;
   }
-}
-
-@media (max-width: 768px) {
-  .video-showcase {
-    margin-top: 3rem;
-    padding-top: 2rem;
+  .footer-grid {
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    gap: 2rem;
   }
-
-  .video-showcase h3 {
-    font-size: 1.5rem;
-  }
-
-  .video-container iframe {
-    height: 350px;
-  }
-}
-
-@media (max-width: 576px) {
-  .video-container iframe {
-    height: 250px;
-  }
-}
-
-/* MEDIA QUERIES */
-@media (max-width: 1400px) {
-  .pdf-frame {
-    height: 60vh;
-  }
-}
-
-@media (max-width: 1200px) {
-  .pdf-frame {
-    height: 55vh;
-  }
-}
-
-@media (max-width: 992px) {
-  section {
-    padding: 4rem 0;
-  }
-
-  .section-header {
-    margin-bottom: 2.5rem;
-  }
-
-  .hero-content h1 {
-    font-size: 2.75rem;
-  }
-
-  .hero-content p {
-    font-size: 1.25rem;
-  }
-
-  .gallery-container {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  }
-
-  .gallery-item {
-    height: 220px;
-  }
-
-  .pdf-frame {
-    height: 50vh;
-  }
-
-  .pdf-controls {
-    flex-direction: row;
-    padding: 0.75rem;
-  }
-
-  .pdf-download,
-  .pdf-fullscreen {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
-
   .contact-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .product-visual {
-    min-width: 100%;
-  }
-
-  .feature-list {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr; /* Ensure this was the original intent for contact on tablet */
   }
 }
 
 @media (max-width: 768px) {
   html {
-    font-size: 15.5px; /* Slightly larger than before, less dramatic scaling */
-    -webkit-text-size-adjust: 100%;
+    font-size: 15px;
   }
 
   .header-container {
@@ -1412,12 +1356,20 @@ section {
     grid-template-columns: 1fr;
   }
 
-  .about-stats {
-    justify-content: space-between;
+  .about-content {
+    flex-direction: column;
+    gap: 2.5rem;
   }
 
-  .about-content {
-    gap: 2rem;
+  .about-text,
+  .about-image {
+    min-width: 100%;
+    flex-basis: auto;
+  }
+
+  .about-stats {
+    justify-content: space-around;
+    gap: 1.5rem;
   }
 
   .contact-info {
@@ -1450,9 +1402,100 @@ section {
   .pdf-modal-title {
     font-size: 1rem;
   }
+
+  .video-showcase {
+    margin-top: 3rem;
+    padding-top: 2rem;
+  }
+
+  .video-showcase h3 {
+    font-size: 1.5rem;
+  }
+
+  .video-container iframe {
+    height: 350px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    row-gap: 2rem;
+  }
+
+  .footer-info {
+    min-width: auto;
+    margin-bottom: 0;
+  }
+
+  .contact-form .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    padding-top: 1.5rem;
+  }
+
+  .pdf-frame {
+    height: 40vh;
+  }
+
+  .gallery-container {
+    grid-template-columns: repeat(2, 1fr); /* Show 2 images per row */
+    gap: 1rem; /* Adjust gap if needed */
+  }
+
+  .gallery-item {
+    height: 180px; /* Adjust height for smaller thumbnails */
+    /* Or use aspect-ratio if browser support is sufficient: aspect-ratio: 1 / 1; for square */
+  }
 }
 
 @media (max-width: 576px) {
+  /* Mobile */
+  .video-container iframe {
+    height: 250px;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr; /* Single column */
+    row-gap: 2rem; /* Explicitly use row-gap for vertical spacing between items */
+    /* The column-gap (or just gap) from above won't apply meaningfully here */
+  }
+
+  /* Remove individual margin from footer-info if row-gap is sufficient */
+  .footer-info {
+    min-width: auto;
+    margin-bottom: 0; /* Let row-gap handle spacing to the next element */
+  }
+
+  /* If .footer-grid > div { margin-bottom: 2rem; } was used, 
+     ensure .footer-grid > div:last-child { margin-bottom: 0; } is also present, 
+     or simply rely on row-gap. Let's use row-gap. */
+
+  .about-content {
+    gap: 2rem; /* Further reduce gap for very small screens */
+  }
+
+  .about-stats {
+    flex-direction: column; /* Stack stat items */
+    align-items: center; /* Center them */
+    gap: 1.5rem;
+  }
+
+  .stat-item {
+    text-align: center; /* Ensure text within stat items is centered */
+  }
+
+  .contact-form .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    padding-top: 1.5rem;
+  }
+
+  .pdf-frame {
+    height: 40vh;
+  }
+
   section {
     padding: 3rem 0;
   }
@@ -1488,11 +1531,12 @@ section {
 
   .footer-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    row-gap: 2rem;
   }
 
   .footer-info {
     min-width: auto;
+    margin-bottom: 0;
   }
 
   .contact-form .form-row {
@@ -1506,6 +1550,20 @@ section {
   .pdf-frame {
     height: 40vh;
   }
+
+  /* === About Section Additions for 576px === */
+  .about-content {
+    gap: 2rem; /* Further reduce gap */
+  }
+  .about-stats {
+    flex-direction: column; /* Stack stat items */
+    align-items: center; /* Center stacked stat items */
+    gap: 1.5rem;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  /* === End About Section Additions === */
 }
 
 .cta-container {

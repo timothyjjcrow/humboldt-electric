@@ -92,108 +92,109 @@ document.addEventListener("DOMContentLoaded", function () {
   const closeModal = document.querySelector(".modal-close");
   const prevBtn = document.querySelector(".modal-prev");
   const nextBtn = document.querySelector(".modal-next");
-  const filterBtns = document.querySelectorAll(".filter-btn");
+  const modalImageCounter = document.getElementById("modal-image-counter");
 
-  let visibleItems = [...galleryItems];
+  let currentItems = [...galleryItems];
   let currentIndex = 0;
 
-  // Gallery filtering
-  if (filterBtns.length > 0) {
-    filterBtns.forEach((btn) => {
-      btn.addEventListener("click", function () {
-        // Remove active class from all buttons
-        filterBtns.forEach((b) => b.classList.remove("active"));
-
-        // Add active class to clicked button
-        this.classList.add("active");
-
-        const filterValue = this.getAttribute("data-filter");
-
-        // Show/hide items based on filter
-        galleryItems.forEach((item) => {
-          if (
-            filterValue === "all" ||
-            item.getAttribute("data-category") === filterValue
-          ) {
-            item.style.display = "block";
-            // Add to visible items array
-            if (!visibleItems.includes(item)) {
-              visibleItems.push(item);
-            }
-          } else {
-            item.style.display = "none";
-            // Remove from visible items array
-            const index = visibleItems.indexOf(item);
-            if (index > -1) {
-              visibleItems.splice(index, 1);
-            }
-          }
-        });
-      });
-    });
-  }
-
   // Gallery modal
-  if (galleryItems.length > 0) {
-    // Open modal when clicking on an image
+  if (galleryItems.length > 0 && modal) {
     galleryItems.forEach((item, index) => {
       item.addEventListener("click", function () {
-        if (!visibleItems.includes(item)) return;
-
-        // Find the index in the visibleItems array
-        currentIndex = visibleItems.indexOf(item);
+        currentIndex = currentItems.indexOf(item);
+        if (currentIndex === -1) return;
 
         const img = this.querySelector("img");
-        const overlay = this.querySelector(".gallery-overlay");
-        const title = overlay.querySelector("h4").textContent;
-        const description = overlay.querySelector("p").textContent;
+        const altText = img.getAttribute("alt") || "Image Description";
 
-        modalImg.src = img.src;
-        modalCaptionTitle.textContent = title;
-        modalCaptionText.textContent = description;
+        if (modalImg) modalImg.src = img.src;
+        if (modalCaptionText) modalCaptionText.innerHTML = "";
+        if (modalImageCounter) {
+          modalImageCounter.textContent = `Image ${currentIndex + 1} of ${
+            currentItems.length
+          }`;
+        }
 
         modal.classList.add("active");
-        document.body.style.overflow = "hidden"; // Prevent scrolling when modal is open
+        document.body.style.overflow = "hidden";
       });
     });
 
-    // Close modal
+    const updateModalContent = (index) => {
+      if (index < 0 || index >= currentItems.length) return;
+      const item = currentItems[index];
+      const img = item.querySelector("img");
+      const altText = img.getAttribute("alt") || "Image Description";
+
+      if (modalImg) modalImg.src = img.src;
+      if (modalCaptionText) modalCaptionText.innerHTML = "";
+      if (modalImageCounter) {
+        modalImageCounter.textContent = `Image ${index + 1} of ${
+          currentItems.length
+        }`;
+      }
+    };
+
     if (closeModal) {
       closeModal.addEventListener("click", () => {
         modal.classList.remove("active");
-        document.body.style.overflow = "auto"; // Re-enable scrolling
+        document.body.style.overflow = "auto";
       });
     }
-
-    // Navigate through images
-    const updateModalContent = (index) => {
-      const item = visibleItems[index];
-      const img = item.querySelector("img");
-      const overlay = item.querySelector(".gallery-overlay");
-      const title = overlay.querySelector("h4").textContent;
-      const description = overlay.querySelector("p").textContent;
-
-      modalImg.src = img.src;
-      modalCaptionTitle.textContent = title;
-      modalCaptionText.textContent = description;
-    };
 
     if (prevBtn) {
       prevBtn.addEventListener("click", () => {
         currentIndex =
-          (currentIndex - 1 + visibleItems.length) % visibleItems.length;
+          (currentIndex - 1 + currentItems.length) % currentItems.length;
         updateModalContent(currentIndex);
       });
     }
 
     if (nextBtn) {
       nextBtn.addEventListener("click", () => {
-        currentIndex = (currentIndex + 1) % visibleItems.length;
+        currentIndex = (currentIndex + 1) % currentItems.length;
         updateModalContent(currentIndex);
       });
     }
 
-    // Close modal when clicking outside the image
+    // Swipe functionality
+    let touchstartX = 0;
+    let touchendX = 0;
+    const swipeThreshold = 50;
+
+    modal.addEventListener(
+      "touchstart",
+      function (event) {
+        if (
+          event.target === modalImg ||
+          event.target === prevBtn ||
+          event.target === nextBtn
+        ) {
+        }
+        touchstartX = event.changedTouches[0].screenX;
+      },
+      { passive: true }
+    );
+
+    modal.addEventListener(
+      "touchend",
+      function (event) {
+        touchendX = event.changedTouches[0].screenX;
+        handleSwipe();
+      },
+      false
+    );
+
+    function handleSwipe() {
+      if (!modal.classList.contains("active")) return;
+      if (touchendX < touchstartX - swipeThreshold) {
+        if (nextBtn) nextBtn.click();
+      }
+      if (touchendX > touchstartX + swipeThreshold) {
+        if (prevBtn) prevBtn.click();
+      }
+    }
+
     window.addEventListener("click", (e) => {
       if (e.target === modal) {
         modal.classList.remove("active");
@@ -201,19 +202,14 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Keyboard navigation
     document.addEventListener("keydown", (e) => {
       if (modal.classList.contains("active")) {
         if (e.key === "Escape") {
-          modal.classList.remove("active");
-          document.body.style.overflow = "auto";
+          if (closeModal) closeModal.click();
         } else if (e.key === "ArrowLeft") {
-          currentIndex =
-            (currentIndex - 1 + visibleItems.length) % visibleItems.length;
-          updateModalContent(currentIndex);
+          if (prevBtn) prevBtn.click();
         } else if (e.key === "ArrowRight") {
-          currentIndex = (currentIndex + 1) % visibleItems.length;
-          updateModalContent(currentIndex);
+          if (nextBtn) nextBtn.click();
         }
       }
     });
