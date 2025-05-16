@@ -4,8 +4,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add variables for hide-on-scroll behavior
   let lastScrollTop = 0;
-  let scrollThreshold = 20; // Minimum amount of pixels to scroll before hiding/showing nav
+  let scrollThreshold = 5; // Reduced from 20 to 5 to make it more responsive
   let isScrollingUp = false;
+
+  // Debug: Check if header element is found
+  if (!header) {
+    console.error("Navigation header element not found!");
+  } else {
+    console.log("Navigation header found:", header);
+  }
 
   window.addEventListener("scroll", function () {
     // Original scrolled effect
@@ -13,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
       header.classList.add("scrolled");
     } else {
       header.classList.remove("scrolled");
+      // Also ensure nav-hidden is removed at the top
+      header.classList.remove("nav-hidden");
     }
 
     // New hide-on-scroll behavior
@@ -26,6 +35,23 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    // Force immediate response when scrolling significantly
+    if (Math.abs(lastScrollTop - currentScrollTop) > 50) {
+      isScrollingUp = currentScrollTop < lastScrollTop;
+      if (isScrollingUp) {
+        header.classList.remove("nav-hidden");
+        // Debug
+        console.log("Large scroll UP detected - showing nav");
+      } else {
+        header.classList.add("nav-hidden");
+        // Debug
+        console.log("Large scroll DOWN detected - hiding nav");
+      }
+      lastScrollTop = currentScrollTop;
+      return;
+    }
+
+    // Regular check for smaller scrolls
     // Determine if we're scrolling up or down
     isScrollingUp = currentScrollTop < lastScrollTop;
 

@@ -198,7 +198,7 @@ section {
   width: 100%;
   z-index: 1000;
   padding: 1rem 0;
-  transition: all var(--transition-medium);
+  transition: transform 0.2s ease, padding 0.3s ease, box-shadow 0.3s ease;
 }
 
 .site-header.scrolled {
