@@ -2,11 +2,43 @@ document.addEventListener("DOMContentLoaded", function () {
   // Header scroll effect
   const header = document.querySelector(".site-header");
 
+  // Add variables for hide-on-scroll behavior
+  let lastScrollTop = 0;
+  let scrollThreshold = 20; // Minimum amount of pixels to scroll before hiding/showing nav
+  let isScrollingUp = false;
+
   window.addEventListener("scroll", function () {
+    // Original scrolled effect
     if (window.scrollY > 50) {
       header.classList.add("scrolled");
     } else {
       header.classList.remove("scrolled");
+    }
+
+    // New hide-on-scroll behavior
+    const currentScrollTop =
+      window.scrollY || document.documentElement.scrollTop;
+
+    // Don't apply hide logic if at the top of page
+    if (currentScrollTop <= 50) {
+      header.classList.remove("nav-hidden");
+      lastScrollTop = currentScrollTop;
+      return;
+    }
+
+    // Determine if we're scrolling up or down
+    isScrollingUp = currentScrollTop < lastScrollTop;
+
+    // If scrolled more than threshold
+    if (Math.abs(lastScrollTop - currentScrollTop) > scrollThreshold) {
+      if (isScrollingUp) {
+        // Scrolling up, show the header
+        header.classList.remove("nav-hidden");
+      } else {
+        // Scrolling down, hide the header
+        header.classList.add("nav-hidden");
+      }
+      lastScrollTop = currentScrollTop;
     }
   });
 
