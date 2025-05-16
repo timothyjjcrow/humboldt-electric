@@ -2,21 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Header scroll effect
   const header = document.querySelector(".site-header");
 
-  // Add a visual debug indicator to the page
-  const debugIndicator = document.createElement("div");
-  debugIndicator.style.cssText = `
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 5px 10px;
-    font-size: 12px;
-    z-index: 9999;
-    border-radius: 4px;
-  `;
-  document.body.appendChild(debugIndicator);
-
   // Simpler scroll handling approach
   let lastScrollY = window.scrollY;
   let direction = "none";
@@ -31,29 +16,12 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  // Manually test the hiding mechanism on page load
-  debugIndicator.textContent = "Testing header hiding...";
-
-  // This is to test if the CSS transition works at all
-  setTimeout(() => {
-    header.classList.add("nav-hidden");
-    debugIndicator.textContent = "Class added: nav-hidden";
-
-    setTimeout(() => {
-      header.classList.remove("nav-hidden");
-      debugIndicator.textContent = "Class removed: nav-hidden";
-    }, 1500);
-  }, 1000);
-
   // Actual scroll handling
   function handleScroll() {
     const currentScrollY = window.scrollY;
 
     // Determine scroll direction
     direction = currentScrollY > lastScrollY ? "down" : "up";
-
-    // Update debug indicator
-    debugIndicator.textContent = `Scroll: ${direction}, Y: ${currentScrollY}, Header class: ${header.className}`;
 
     // Skip tiny scrolls (touchpad sensitivity)
     if (Math.abs(currentScrollY - lastScrollY) < 5) return;
