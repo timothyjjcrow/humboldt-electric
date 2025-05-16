@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add variables for hide-on-scroll behavior
   let lastScrollTop = 0;
-  let scrollThreshold = 5; // Reduced from 20 to 5 to make it more responsive
+  let scrollThreshold = 3; // Even more responsive
   let isScrollingUp = false;
 
   // Debug: Check if header element is found
@@ -14,59 +14,61 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Navigation header found:", header);
   }
 
-  window.addEventListener("scroll", function () {
+  // Test apply/remove class manually to verify CSS works
+  console.log("Initial header classes:", header.className);
+
+  function updateHeaderVisibility(scrollPos) {
     // Original scrolled effect
-    if (window.scrollY > 50) {
-      header.classList.add("scrolled");
-    } else {
+    if (scrollPos <= 50) {
+      // At the top - always show header and remove scrolled effect
       header.classList.remove("scrolled");
-      // Also ensure nav-hidden is removed at the top
       header.classList.remove("nav-hidden");
-    }
-
-    // New hide-on-scroll behavior
-    const currentScrollTop =
-      window.scrollY || document.documentElement.scrollTop;
-
-    // Don't apply hide logic if at the top of page
-    if (currentScrollTop <= 50) {
-      header.classList.remove("nav-hidden");
-      lastScrollTop = currentScrollTop;
       return;
+    } else {
+      // Not at top - add scrolled style
+      header.classList.add("scrolled");
     }
 
-    // Force immediate response when scrolling significantly
-    if (Math.abs(lastScrollTop - currentScrollTop) > 50) {
-      isScrollingUp = currentScrollTop < lastScrollTop;
-      if (isScrollingUp) {
-        header.classList.remove("nav-hidden");
-        // Debug
-        console.log("Large scroll UP detected - showing nav");
-      } else {
-        header.classList.add("nav-hidden");
-        // Debug
-        console.log("Large scroll DOWN detected - hiding nav");
-      }
-      lastScrollTop = currentScrollTop;
-      return;
-    }
-
-    // Regular check for smaller scrolls
     // Determine if we're scrolling up or down
-    isScrollingUp = currentScrollTop < lastScrollTop;
+    isScrollingUp = scrollPos < lastScrollTop;
 
-    // If scrolled more than threshold
-    if (Math.abs(lastScrollTop - currentScrollTop) > scrollThreshold) {
+    // For significant scrolls, respond immediately
+    if (Math.abs(lastScrollTop - scrollPos) > 20) {
       if (isScrollingUp) {
-        // Scrolling up, show the header
+        // Scrolling UP = show header
         header.classList.remove("nav-hidden");
+        console.log("Showing header - scrolling up", scrollPos, lastScrollTop);
       } else {
-        // Scrolling down, hide the header
+        // Scrolling DOWN = hide header
         header.classList.add("nav-hidden");
+        console.log("Hiding header - scrolling down", scrollPos, lastScrollTop);
       }
-      lastScrollTop = currentScrollTop;
     }
-  });
+    // Save last position
+    lastScrollTop = scrollPos;
+  }
+
+  // Initial check
+  updateHeaderVisibility(window.scrollY || document.documentElement.scrollTop);
+
+  // Scroll event with throttling
+  let ticking = false;
+  window.addEventListener(
+    "scroll",
+    function () {
+      const currentScrollTop =
+        window.scrollY || document.documentElement.scrollTop;
+
+      if (!ticking) {
+        window.requestAnimationFrame(function () {
+          updateHeaderVisibility(currentScrollTop);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    },
+    { passive: true }
+  );
 
   // Mobile menu toggle
   const menuToggle = document.querySelector(".menu-toggle");

@@ -198,7 +198,8 @@ section {
   width: 100%;
   z-index: 1000;
   padding: 1rem 0;
-  transition: transform 0.2s ease, padding 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, padding 0.3s ease, box-shadow 0.3s ease; /* Faster transition for transform */
+  transform: translateY(0); /* Explicitly start at visible position */
 }
 
 .site-header.scrolled {
@@ -208,8 +209,11 @@ section {
 
 /* Add nav-hidden class for scroll behavior */
 .site-header.nav-hidden {
-  transform: translateY(-100%); /* Move the header up out of view */
-  box-shadow: none; /* Remove shadow when hidden */
+  transform: translateY(
+    -100%
+  ) !important; /* Force header completely out of view */
+  box-shadow: none !important; /* Remove shadow when hidden */
+  opacity: 0.99; /* Fix for some browsers where transform doesn't fully hide */
 }
 
 .header-container {
