@@ -2,71 +2,88 @@ document.addEventListener("DOMContentLoaded", function () {
   // Header scroll effect
   const header = document.querySelector(".site-header");
 
-  // Add variables for hide-on-scroll behavior
-  let lastScrollTop = 0;
-  let scrollThreshold = 3; // Even more responsive
-  let isScrollingUp = false;
+  // Add a visual debug indicator to the page
+  const debugIndicator = document.createElement("div");
+  debugIndicator.style.cssText = `
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 5px 10px;
+    font-size: 12px;
+    z-index: 9999;
+    border-radius: 4px;
+  `;
+  document.body.appendChild(debugIndicator);
 
-  // Debug: Check if header element is found
-  if (!header) {
-    console.error("Navigation header element not found!");
-  } else {
-    console.log("Navigation header found:", header);
+  // Simpler scroll handling approach
+  let lastScrollY = window.scrollY;
+  let direction = "none";
+
+  function debounce(func, wait) {
+    let timeout;
+    return function () {
+      const context = this;
+      const args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), wait);
+    };
   }
 
-  // Test apply/remove class manually to verify CSS works
-  console.log("Initial header classes:", header.className);
+  // Manually test the hiding mechanism on page load
+  debugIndicator.textContent = "Testing header hiding...";
 
-  function updateHeaderVisibility(scrollPos) {
-    // Original scrolled effect
-    if (scrollPos <= 50) {
-      // At the top - always show header and remove scrolled effect
-      header.classList.remove("scrolled");
+  // This is to test if the CSS transition works at all
+  setTimeout(() => {
+    header.classList.add("nav-hidden");
+    debugIndicator.textContent = "Class added: nav-hidden";
+
+    setTimeout(() => {
       header.classList.remove("nav-hidden");
-      return;
+      debugIndicator.textContent = "Class removed: nav-hidden";
+    }, 1500);
+  }, 1000);
+
+  // Actual scroll handling
+  function handleScroll() {
+    const currentScrollY = window.scrollY;
+
+    // Determine scroll direction
+    direction = currentScrollY > lastScrollY ? "down" : "up";
+
+    // Update debug indicator
+    debugIndicator.textContent = `Scroll: ${direction}, Y: ${currentScrollY}, Header class: ${header.className}`;
+
+    // Skip tiny scrolls (touchpad sensitivity)
+    if (Math.abs(currentScrollY - lastScrollY) < 5) return;
+
+    // Don't hide header when at the top
+    if (currentScrollY < 100) {
+      header.classList.remove("nav-hidden");
+      header.classList.remove("scrolled");
     } else {
-      // Not at top - add scrolled style
       header.classList.add("scrolled");
-    }
 
-    // Determine if we're scrolling up or down
-    isScrollingUp = scrollPos < lastScrollTop;
-
-    // For significant scrolls, respond immediately
-    if (Math.abs(lastScrollTop - scrollPos) > 20) {
-      if (isScrollingUp) {
-        // Scrolling UP = show header
-        header.classList.remove("nav-hidden");
-        console.log("Showing header - scrolling up", scrollPos, lastScrollTop);
-      } else {
-        // Scrolling DOWN = hide header
+      if (direction === "down") {
         header.classList.add("nav-hidden");
-        console.log("Hiding header - scrolling down", scrollPos, lastScrollTop);
+      } else {
+        header.classList.remove("nav-hidden");
       }
     }
-    // Save last position
-    lastScrollTop = scrollPos;
+
+    lastScrollY = currentScrollY;
   }
 
-  // Initial check
-  updateHeaderVisibility(window.scrollY || document.documentElement.scrollTop);
-
-  // Scroll event with throttling
-  let ticking = false;
+  // Use both regular and debounced versions for better responsiveness
+  window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener(
     "scroll",
-    function () {
-      const currentScrollTop =
-        window.scrollY || document.documentElement.scrollTop;
-
-      if (!ticking) {
-        window.requestAnimationFrame(function () {
-          updateHeaderVisibility(currentScrollTop);
-          ticking = false;
-        });
-        ticking = true;
+    debounce(() => {
+      if (window.scrollY < 100) {
+        header.classList.remove("nav-hidden");
       }
-    },
+    }, 250),
     { passive: true }
   );
 

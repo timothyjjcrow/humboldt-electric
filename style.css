@@ -198,8 +198,9 @@ section {
   width: 100%;
   z-index: 1000;
   padding: 1rem 0;
-  transition: transform 0.2s ease, padding 0.3s ease, box-shadow 0.3s ease; /* Faster transition for transform */
-  transform: translateY(0); /* Explicitly start at visible position */
+  transition: top 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+  /* Reset any transform */
+  transform: none;
 }
 
 .site-header.scrolled {
@@ -207,13 +208,10 @@ section {
   box-shadow: var(--shadow-md);
 }
 
-/* Add nav-hidden class for scroll behavior */
+/* New approach using top position instead of transform */
 .site-header.nav-hidden {
-  transform: translateY(
-    -100%
-  ) !important; /* Force header completely out of view */
-  box-shadow: none !important; /* Remove shadow when hidden */
-  opacity: 0.99; /* Fix for some browsers where transform doesn't fully hide */
+  top: -200px !important; /* Move far above viewport (using larger value than header height) */
+  box-shadow: none !important;
 }
 
 .header-container {
