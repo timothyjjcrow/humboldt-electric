@@ -141,6 +141,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let currentItems = [...galleryItems];
   let currentIndex = 0;
+  // Store the original overflow value to restore it later
+  const originalBodyOverflow = window.getComputedStyle(document.body).overflow;
 
   // Gallery modal
   if (galleryItems.length > 0 && modal) {
@@ -161,9 +163,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         modal.classList.add("active");
+        // Save current scroll position and hide scrollbar
         document.body.style.overflow = "hidden";
+        // Prevent any width changes
+        document.body.style.paddingRight = getScrollbarWidth() + "px";
       });
     });
+
+    // Helper function to get scrollbar width
+    function getScrollbarWidth() {
+      // Create a temporary div to measure scrollbar width
+      const scrollDiv = document.createElement("div");
+      scrollDiv.style.cssText =
+        "width: 100px; height: 100px; overflow: scroll; position: absolute; top: -9999px;";
+      document.body.appendChild(scrollDiv);
+      const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+      document.body.removeChild(scrollDiv);
+      return scrollbarWidth;
+    }
+
+    // Helper function to close the modal and restore scrolling properly
+    function closeGalleryModal() {
+      modal.classList.remove("active");
+      // Restore original overflow and remove padding adjustment
+      document.body.style.overflow = originalBodyOverflow;
+      document.body.style.paddingRight = "0";
+    }
 
     const updateModalContent = (index) => {
       if (index < 0 || index >= currentItems.length) return;
@@ -181,10 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     if (closeModal) {
-      closeModal.addEventListener("click", () => {
-        modal.classList.remove("active");
-        document.body.style.overflow = "auto";
-      });
+      closeModal.addEventListener("click", closeGalleryModal);
     }
 
     if (prevBtn) {
@@ -242,8 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("click", (e) => {
       if (e.target === modal) {
-        modal.classList.remove("active");
-        document.body.style.overflow = "auto";
+        closeGalleryModal();
       }
     });
 
