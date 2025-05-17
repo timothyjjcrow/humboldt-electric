@@ -299,7 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const carousels = document.querySelectorAll(".fullpage-carousel");
     if (carousels.length === 0) return;
 
-    const AUTO_SCROLL_INTERVAL = 7000;
+    const AUTO_SCROLL_INTERVAL = 12000;
     const carouselImagePaths = {
       "lutron-shades": Array.from(
         { length: 23 },
